@@ -7,27 +7,27 @@
 ## Architecture
 Browser → `/api/create-order` (server sets ₹299 INR) → Razorpay Checkout → `/api/verify` (HMAC check + re-fetch payment from Razorpay, checks order/amount/currency/status) → 5-minute signed download token → `/api/download` streams the PDF from a **private R2 bucket**. Webhook `/api/webhook` finishes orders if the buyer closes the tab. KV stores order records (idempotency + support audit).
 
-## Environment
-| Name | Where | Value |
-|---|---|---|
-| `RAZORPAY_KEY_ID` | wrangler.toml [vars] | Key ID (public) |
-| `PRODUCT_AMOUNT_MINOR` / `PRODUCT_CURRENCY` | [vars] | `29900` / `INR` |
-| `RAZORPAY_KEY_SECRET` | **secret** | Razorpay Key Secret |
-| `RAZORPAY_WEBHOOK_SECRET` | **secret** | the secret you type when creating the webhook |
-| `TOKEN_SECRET` | **secret** | `openssl rand -hex 32` |
+## Deploy on Cloudflare Pages (GitHub-connected)
+The repo must have `public/`, `functions/`, `src/` at its ROOT (not inside another folder).
 
-## Setup (about 15 minutes)
-1. Install: `npm i -g wrangler` then `wrangler login`.
-2. `cd posture-reset-store`
-3. `wrangler kv namespace create ORDERS` → paste the id into `wrangler.toml`.
-4. `wrangler r2 bucket create posture-ebook-private` (leave private; no public URL).
-5. Upload the PDF: `wrangler r2 object put posture-ebook-private/posture-reset-method.pdf --file "./Your-Final-Ebook.pdf" --content-type application/pdf --remote`
-6. Secrets: `wrangler secret put RAZORPAY_KEY_SECRET`, `... RAZORPAY_WEBHOOK_SECRET`, `... TOKEN_SECRET`.
-7. **Start in Test Mode**: set `RAZORPAY_KEY_ID` to your `rzp_test_...` key and use the test secret.
-8. `wrangler deploy`. Add your domain under Workers → Settings → Domains.
-9. Razorpay Dashboard → Settings → Webhooks → add `https://YOUR-DOMAIN/api/webhook`, events `payment.captured` and `order.paid`, and the same webhook secret as step 6.
-10. Replace `YOUR-DOMAIN.example` in `index.html` (canonical / Open Graph), add `assets/og-image.jpg` (1200×630), real legal text (placeholders are highlighted yellow).
-11. Run the test plan below, then switch to the live Key ID + live secret and redeploy.
+1. Workers & Pages -> your project -> Settings -> Builds: **Framework preset: None, Build command: (empty), Build output directory: `public`**. Save, then Deployments -> Retry/redeploy. (This fixes the 404: the site lives in `public/`.)
+2. Create storage (Storage & Databases):
+   - KV -> Create namespace `ORDERS`.
+   - R2 -> Create bucket `posture-ebook-private` (keep private, no public access). Open it -> Objects -> Upload your final PDF and name it exactly `posture-reset-method.pdf`.
+3. Project -> Settings -> **Bindings** -> Add: KV namespace, variable name `ORDERS` -> pick `ORDERS`. Add: R2 bucket, variable name `EBOOK` -> pick `posture-ebook-private`.
+4. Project -> Settings -> **Variables and Secrets** (Production):
+   | Name | Type | Value |
+   |---|---|---|
+   | `RAZORPAY_KEY_ID` | Text | your Key ID (`rzp_test_...` first, `rzp_live_...` later) |
+   | `RAZORPAY_KEY_SECRET` | **Secret** | Razorpay Key Secret |
+   | `RAZORPAY_WEBHOOK_SECRET` | **Secret** | any secret you also type into the Razorpay webhook |
+   | `TOKEN_SECRET` | **Secret** | long random string (30+ characters) |
+   Optional text vars: `PRODUCT_AMOUNT_MINOR` (default 29900) and `PRODUCT_CURRENCY` (default INR).
+5. Redeploy (bindings/variables apply to new deployments).
+6. Razorpay Dashboard -> Settings -> Webhooks -> add `https://YOUR-SITE/api/webhook`, events `payment.captured` and `order.paid`, same secret as step 4.
+7. Replace `YOUR-DOMAIN.example` in `public/index.html`, add `public/assets/og-image.jpg`, and your real legal text.
+
+(`wrangler.worker.toml` is only for deploying as a plain Worker with `wrangler deploy`; Pages ignores it.)
 
 ## Currency
 Price is ₹299 INR (29900 paise), which every Razorpay account supports, so no international-payments setup is needed. Overseas cards are only accepted if International Payments is enabled on your account; otherwise buyers from abroad may be declined.

@@ -50,14 +50,15 @@ function safeEqual(a, b) {
 }
 
 function requireConfig(env) {
-  const missing = ["RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET", "TOKEN_SECRET", "PRODUCT_AMOUNT_MINOR", "PRODUCT_CURRENCY"].filter(
+  const missing = ["RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET", "TOKEN_SECRET"].filter(
     (k) => !env[k]
   );
   return missing;
 }
 
-const amountMinor = (env) => parseInt(env.PRODUCT_AMOUNT_MINOR, 10);
-const currency = (env) => String(env.PRODUCT_CURRENCY).toUpperCase();
+// Defaults: Rs 299.00 = 29900 paise INR. Override with PRODUCT_AMOUNT_MINOR / PRODUCT_CURRENCY if ever needed.
+const amountMinor = (env) => parseInt(env.PRODUCT_AMOUNT_MINOR || "29900", 10);
+const currency = (env) => String(env.PRODUCT_CURRENCY || "INR").toUpperCase();
 
 async function razorpay(env, path, init = {}) {
   const auth = btoa(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`);

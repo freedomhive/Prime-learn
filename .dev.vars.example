@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local `wrangler dev` (this file name is git-ignored). Use TEST keys locally.
+RAZORPAY_KEY_SECRET=your_test_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+TOKEN_SECRET=change-me-to-a-long-random-string
