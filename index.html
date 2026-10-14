@@ -8,11 +8,11 @@
 <meta name="theme-color" content="#1B2A4A">
 <link rel="canonical" href="https://YOUR-DOMAIN.example/">
 
-<!-- Open Graph: replace the domain and add a 1200x630 share image at /assets/og-image.jpg -->
+<!-- Open Graph: replace the domain and add a 1200x630 share image at /og-image.jpg -->
 <meta property="og:type" content="product">
 <meta property="og:title" content="Fix Your Back & Neck Posture — The Posture Reset Method™">
 <meta property="og:description" content="A practical guide to better posture habits, mobility and strength for desk workers. Instant digital download.">
-<meta property="og:image" content="https://YOUR-DOMAIN.example/assets/og-image.jpg">
+<meta property="og:image" content="https://YOUR-DOMAIN.example/og-image.jpg">
 <meta property="og:url" content="https://YOUR-DOMAIN.example/">
 <meta property="og:site_name" content="Freedom Studio Publishing">
 <meta name="twitter:card" content="summary_large_image">
@@ -245,7 +245,7 @@ label{font-weight:700;font-size:.9rem}
       <div class="micro"><span>Secure checkout by Razorpay</span><span>Download right after payment</span><span>Read on any device</span></div>
     </div>
     <div class="cover-stage">
-      <img src="assets/cover.webp" width="900" height="1350" alt="Ebook cover: Fix Your Back and Neck Posture — The Posture Reset Method">
+      <img src="cover.webp" width="900" height="1350" alt="Ebook cover: Fix Your Back and Neck Posture — The Posture Reset Method">
     </div>
   </div>
 </section>
@@ -335,9 +335,9 @@ label{font-weight:700;font-size:.9rem}
   <div class="wrap">
     <div class="sec-head"><span class="eyebrow">Look inside</span><h2>Preview real pages</h2><p>These are actual pages from the ebook. Tap to enlarge.</p></div>
     <div class="previews">
-      <figure><button type="button" data-zoom="assets/preview-1.webp" data-alt="Ebook page: Open Book Thoracic Rotation exercise guide"><img loading="lazy" src="assets/preview-1.webp" width="680" height="880" alt="Ebook page: Open Book Thoracic Rotation exercise guide"></button><figcaption>Illustrated exercise guide</figcaption></figure>
-      <figure><button type="button" data-zoom="assets/preview-2.webp" data-alt="Ebook page: Ideal desk setup guidelines and diagram"><img loading="lazy" src="assets/preview-2.webp" width="680" height="880" alt="Ebook page: Ideal desk setup guidelines and diagram"></button><figcaption>Desk setup guidance</figcaption></figure>
-      <figure><button type="button" data-zoom="assets/preview-3.webp" data-alt="Ebook page: 30-day program roadmap"><img loading="lazy" src="assets/preview-3.webp" width="680" height="880" alt="Ebook page: 30-day program roadmap"></button><figcaption>30-day program roadmap</figcaption></figure>
+      <figure><button type="button" data-zoom="preview-1.webp" data-alt="Ebook page: Open Book Thoracic Rotation exercise guide"><img loading="lazy" src="preview-1.webp" width="680" height="880" alt="Ebook page: Open Book Thoracic Rotation exercise guide"></button><figcaption>Illustrated exercise guide</figcaption></figure>
+      <figure><button type="button" data-zoom="preview-2.webp" data-alt="Ebook page: Ideal desk setup guidelines and diagram"><img loading="lazy" src="preview-2.webp" width="680" height="880" alt="Ebook page: Ideal desk setup guidelines and diagram"></button><figcaption>Desk setup guidance</figcaption></figure>
+      <figure><button type="button" data-zoom="preview-3.webp" data-alt="Ebook page: 30-day program roadmap"><img loading="lazy" src="preview-3.webp" width="680" height="880" alt="Ebook page: 30-day program roadmap"></button><figcaption>30-day program roadmap</figcaption></figure>
     </div>
   </div>
 </section>
@@ -360,7 +360,7 @@ label{font-weight:700;font-size:.9rem}
 <section class="buy" id="buy">
   <div class="wrap">
     <div class="buy-card">
-      <img src="assets/cover.webp" loading="lazy" width="240" height="360" alt="Ebook cover: Fix Your Back and Neck Posture">
+      <img src="cover.webp" loading="lazy" width="240" height="360" alt="Ebook cover: Fix Your Back and Neck Posture">
       <div>
         <h2>Fix Your Back &amp; Neck Posture<br><span style="color:var(--teal)">The Posture Reset Method™</span></h2>
         <div class="big">₹299 <small>INR · one-time payment</small></div>
@@ -452,6 +452,7 @@ label{font-weight:700;font-size:.9rem}
 
   // ======== CONFIG (nothing secret lives here) ========
   var PIXEL_ID = "2104801253414514";  // Meta Pixel ID. Set to "" to disable tracking.
+  var RAZORPAY_KEY_ID = "rzp_live_TnjJe0OpmqZzR1";   // Key ID is public by design. The Key SECRET must never go in this file.
   var PRODUCT_ID = "posture-reset-method";
   var STORE_KEY = "fsp_order_v1";
 
@@ -489,10 +490,8 @@ label{font-weight:700;font-size:.9rem}
   // ======== config + Razorpay SDK (lazy) ========
   function loadConfig() {
     if (cfg) return Promise.resolve(cfg);
-    return api("config").then(function (c) {
-      if (!c.keyId) throw new Error("Checkout isn't available right now. Please try again shortly.");
-      cfg = c; return c;
-    });
+    var fallback = { keyId: RAZORPAY_KEY_ID, amountMinor: 29900, currency: "INR", merchantName: "Freedom Studio Publishing" };
+    return api("config").then(function (c) { cfg = c && c.keyId ? c : fallback; return cfg; }).catch(function () { cfg = fallback; return cfg; });
   }
   function loadRazorpay() {
     if (window.Razorpay) return Promise.resolve();
