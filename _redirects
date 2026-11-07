@@ -1,0 +1,5 @@
+/home /index.html 301
+/privacy-policy /privacy.html 301
+/admin /admin/login.html 302
+/admin/dashboard /admin/index.html 302
+

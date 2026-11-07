@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-label="Property image placeholder">
+  <rect width="1200" height="800" fill="#171717"/>
+  <path d="M210 575h780V342L600 170 210 342v233Z" fill="#242424"/>
+  <path d="M600 170 990 342v65L600 235 210 407v-65l390-172Z" fill="#C6A15B"/>
+  <rect x="430" y="410" width="120" height="165" fill="#0B0B0B"/>
+  <rect x="635" y="398" width="175" height="105" fill="#0B0B0B"/>
+  <text x="600" y="675" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="42" letter-spacing="6">TRUE VALUE REALTY</text>
+</svg>
